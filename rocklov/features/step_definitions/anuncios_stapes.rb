@@ -1,4 +1,4 @@
-Dado('que estou logado como {string} e {string}') do |email, password|
+Dado('Login com {string} e {string}') do |email, password|
     @email = email
 
     @login_page.open
@@ -6,8 +6,7 @@ Dado('que estou logado como {string} e {string}') do |email, password|
 end
   
 Dado('que acesso o formulario de cadastro de anúncios') do
-    click_button "Criar anúncio"
-    expect(page).to have_css "#equipoForm"
+    @dash_page.goto_equipo_form
 end
 
 Dado('que eu tenho o seguinte equipamento:') do |table|
@@ -17,21 +16,14 @@ Dado('que eu tenho o seguinte equipamento:') do |table|
 end
   
 Quando('submeto o cadastro desse item') do
-
-    thumb = Dir.pwd + "/features/support/fixtures/images/equipos-v2/" + @anuncio[:thumb]
-
-    find("#thumbnail input[type=file]", visible: false).set thumb
-
-    find("input[placeholder$=equipamento]").set @anuncio[:nome]
-    find("#category").find('option', text: @anuncio[:categoria]).select_option
-    find("input[placeholder^=Valor]").set @anuncio[:preco]
-
-    click_button "Cadastrar"
-
+    @equipos_page.create(@anuncio)
 end
   
 Então('devo ver esse item no meu Dashboard') do
-    anuncio = find(".equipo-list")
-    expect(anuncio).to have_content  @anuncio[:nome]
-    expect(anuncio).to have_content "R$#{@anuncio[:preco]}/dia"
+    expect(@dash_page.equipo_list).to have_content  @anuncio[:nome]
+    expect(@dash_page.equipo_list).to have_content "R$#{@anuncio[:preco]}/dia"
+end
+
+Então('deve conter a mensagem de alerta: {string}') do |expect_alert|
+    expect(@alert.dark).to have_text expect_alert
 end
